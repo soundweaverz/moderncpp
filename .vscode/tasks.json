@@ -4,8 +4,16 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "windows": {
+                "command": "mingw32-make windows",
+                "args": []
+            },
+            "linux": {
+                "command": "make linux",
+                "args":[]
+            },
             "label": "build",
-            "type": "process",
+            "type": "shell",
             "command": "g++",
             "args": [
                 "-g",
