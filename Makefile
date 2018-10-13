@@ -1,11 +1,11 @@
 # -*- Makefile -*-
 all: windows wlinux
-windows: modern708.cpp
-	g++ -g modern708.cpp -o modern708.exe -std=c++17
+windows: modern710.cpp
+	g++ -g modern710.cpp -o modern710.exe -std=c++17
 wlinux:
-	wsl.exe g++ -g modern708.cpp -o modern708.x -std=c++17
+	wsl.exe g++ -g modern710.cpp -o modern710.x -std=c++17
 linux:
-	g++ -g modern708.cpp -o modern708.exe -std=c++17
+	g++ -g modern710.cpp -o modern710.exe -std=c++17
 # aufräumen
 wclean:
 	del *.exe *.x *.o
