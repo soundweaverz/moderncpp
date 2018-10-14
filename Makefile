@@ -1,17 +1,28 @@
 # -*- Makefile -*-
+
+# filename
+filename = modern801
+
+# args
+args = -g modern801.cpp -std=c++17
+winfile = -o $(filename).exe
+linfile = -o $(filename).x
+
+# setups for different systems
 all: windows wlinux
 wall: windows wlinux
-windows: modern710.cpp
-	g++ -g modern710.cpp -o modern710.exe -std=c++17
+windows:
+	g++ $(args) $(winfile)
 wlinux:
-	wsl.exe g++ -g modern710.cpp -o modern710.x -std=c++17
+	wsl.exe g++ $(args) $(linfile)
 lall: linux lwindows
 linux:
-	g++ -g modern710.cpp -o modern710.x -std=c++17
+	g++ $(args) $(linfile)
 lwindows:
-	x86_64-w64-mingw32-g++-posix -g modern710.cpp -o modern710.exe -std=c++17
+	x86_64-w64-mingw32-g++-posix $(args) $(winfile)
 winetest:
-	i686-w64-mingw32-g++-posix -g modern710.cpp -o modern710.exe -std=c++17 --static
+	i686-w64-mingw32-g++-posix $(args) $(winfile) --static
+
 # aufräumen
 wclean:
 	del *.exe *.x *.o
