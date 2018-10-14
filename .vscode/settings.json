@@ -32,5 +32,7 @@
         "typeinfo": "cpp",
         "utility": "cpp"
     },
-    "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+    "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "terminal.integrated.shell.linux": "/bin/bash",
+    "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }
