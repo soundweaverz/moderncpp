@@ -1,10 +1,10 @@
 # -*- Makefile -*-
 
 # filename
-filename = modern801
+filename = modern811
 
 # args
-args = -g modern801.cpp -std=c++17
+args = -g $(filename).cpp -std=c++17
 winfile = -o $(filename).exe
 linfile = -o $(filename).x
 
