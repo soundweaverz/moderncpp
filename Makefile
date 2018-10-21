@@ -1,7 +1,7 @@
 # -*- Makefile -*-
 
 # filename
-filename = modern811
+filename = modern815
 
 # args
 args = -g $(filename).cpp -std=c++17
