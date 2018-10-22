@@ -35,8 +35,12 @@
         "ctime": "cpp",
         "deque": "cpp",
         "iomanip": "cpp",
-        "numeric": "cpp"
+        "numeric": "cpp",
+        "*.a": "cpp",
+        "cassert": "cpp",
+        "memory": "cpp"
     },
     "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-    "terminal.integrated.shell.linux": "/bin/bash"
+    "terminal.integrated.shell.linux": "/bin/bash",
+    "C_Cpp.intelliSenseEngine": "Default"
 }

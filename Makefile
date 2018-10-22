@@ -1,12 +1,12 @@
 # -*- Makefile -*-
 
 # filename
-filename = modern815
+filename = openssltest
 
 # args
-args = -g $(filename).cpp -std=c++17
-winfile = -o $(filename).exe
-linfile = -o $(filename).x
+args = -g $(filename).cpp -std=c++17  -lssl -lcrypto
+winfile = -IC:/msys64/usr/local/include -LC:/msys64/usr/local/lib -o $(filename).exe
+linfile = -I/usr/local/include -L/usr/local/lib -o $(filename).x
 
 # setups for different systems
 all: windows wlinux
