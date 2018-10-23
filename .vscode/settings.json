@@ -38,7 +38,9 @@
         "numeric": "cpp",
         "*.a": "cpp",
         "cassert": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "string": "cpp",
+        "cinttypes": "cpp"
     },
     "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
     "terminal.integrated.shell.linux": "/bin/bash",
