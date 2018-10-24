@@ -1,7 +1,5 @@
 #include <string>
 #include <iostream>
-#include <memory>
-using std::unique_ptr;
 
 #include <openssl/bn.h>
 #include <openssl/rsa.h>
@@ -9,23 +7,18 @@ using std::unique_ptr;
 #include <openssl/bio.h>
 #include <openssl/x509.h>
 
-using BN_ptr = std::unique_ptr<BIGNUM, decltype(&::BN_free)>;
-using RSA_ptr = std::unique_ptr<RSA, decltype(&::RSA_free)>;
-using EVP_KEY_ptr = std::unique_ptr<EVP_PKEY, decltype(&::EVP_PKEY_free)>;
-using BIO_FILE_ptr = std::unique_ptr<BIO, decltype(&::BIO_free)>;
-
 int generatersa(RSA *rsa, EVP_PKEY *pkey)
 {
-    BN_ptr bn(BN_new(), ::BN_free);
+    BIGNUM *bn = BN_new();
 
-    if(!BN_set_word(bn.get(), RSA_F4))
+    if(!BN_set_word(bn, RSA_F4))
     {
         std::cerr << "Could not set word." << std::endl;
         return 0;
     }
 
     // Generate Key
-    if(!RSA_generate_key_ex(rsa, 2048, bn.get(), NULL))
+    if(!RSA_generate_key_ex(rsa, 2048, bn, NULL))
     {
         std::cerr << "Could not generate key." << std::endl;
         return 0;
@@ -39,15 +32,19 @@ int generatersa(RSA *rsa, EVP_PKEY *pkey)
     }
 
     std::cout << "Successfully created RSA Private Key." << std::endl;
+
+    // Cleanup
+    BN_free(bn);
+
     return 1;
 }
 
 int writersa(EVP_PKEY *pkey, std::string passphrase)
 {
-    BIO_FILE_ptr pem(BIO_new_file("rsa-private.pem","w"), ::BIO_free);
+    BIO *pem = BIO_new_file("rsa-private.pem","w");
 
     // Write private key in PKCS PEM
-    if(!PEM_write_bio_PKCS8PrivateKey(pem.get(), pkey,
+    if(!PEM_write_bio_PKCS8PrivateKey(pem, pkey,
         EVP_des_ede3_cbc(), const_cast<char*>(passphrase.c_str()),
         passphrase.size(), NULL, NULL))
     {
@@ -61,28 +58,46 @@ int writersa(EVP_PKEY *pkey, std::string passphrase)
      std::cout << "Successfully wrote RSA Private Key." << std::endl;
     #endif
 
+    // Cleanup
+    BIO_free(pem);
+
     return 1;
 }
-
+int rsaencrypt(RSA *rsa, std::string cleantext);
 int readrsa(RSA *rsa, EVP_PKEY *pkey, std::string passphrase)
 {
-    BIO_FILE_ptr pem(BIO_new_file("rsa-private.pem","r"), ::BIO_free);
+    BIO *pemread = BIO_new_file("rsa-private.pem","r");
+    BIO *pemwrite = BIO_new_file("rsa-private2.pem","w");
+ 
+    PEM_read_bio_PrivateKey(pemread, &pkey, 0, const_cast<char*>(passphrase.c_str()));
 
-    if(!PEM_read_bio_PrivateKey(pem.get(), &pkey, 0, const_cast<char*>(passphrase.c_str())))
+    // Write private key in PKCS PEM
+    if(!PEM_write_bio_PKCS8PrivateKey(pemwrite, pkey,
+        EVP_des_ede3_cbc(), const_cast<char*>(passphrase.c_str()),
+        passphrase.size(), NULL, NULL))
     {
+        std::cerr << "Could not convert RSA to PKEY." << std::endl;
         return 0;
     }
-
     std::cout << "Successfully read RSA Private Key." << std::endl;
+
+    // get rsa from pkey
+    rsa = EVP_PKEY_get1_RSA(pkey);
+    rsaencrypt(rsa, passphrase);
+
+    // Cleanup
+    BIO_free(pemread);
+    BIO_free(pemwrite);
+
     return 1;
 }
 
-int rsaencrypt(RSA *rsa, EVP_PKEY *pkey)
+int rsaencrypt(RSA *rsa, std::string cleantext)
 {
     // string allocation
-    std::string cleantext = "This is a test.";
     unsigned char *from = (unsigned char *) cleantext.c_str();
-    unsigned char to[2048] = "";
+    std::cout << from << std::endl;
+    unsigned char to[512] = "";
 
     // encryption
     RSA_private_encrypt(cleantext.size(), from, to, rsa, RSA_PKCS1_PADDING);
@@ -91,11 +106,34 @@ int rsaencrypt(RSA *rsa, EVP_PKEY *pkey)
     std::cout << to << std::endl;
 
     // writebio
-    // BIO_FILE_ptr cipher(BIO_new_file("ciphertext.txt","w"), ::BIO_free);
-    // size_t *written = 0;
-    // BIO_write_ex(cipher.get(), const_cast<unsigned char*>(to), (size_t) 2048, written);
+    BIO *cipher = BIO_new_file("ciphertext.txt","w");
+    BIO_write(cipher, to, RSA_size(rsa));
 
-    // std::cout << "\n" << (long long signed int) written << std::endl;
+    // cleanup
+    BIO_free(cipher);
+
+    return 1;
+}
+
+int rsadecrypt(RSA *rsa)
+{
+    // create buffer for ciphertext
+    unsigned char ciphertext[256] = "";
+    unsigned char to[256] = "";
+
+    // writebio
+    BIO *cipher = BIO_new_file("ciphertext.txt","r");
+    int rc = 0;
+    rc = BIO_read(cipher, ciphertext, 256);
+    std::cout << rc << std::endl;
+
+    // output cipher
+    std::cout << ciphertext << std::endl;
+
+    // decrypt cipher
+    RSA_public_decrypt(256, ciphertext, to, rsa, RSA_PKCS1_PADDING);
+
+    std::cout << to << std::endl;
 
     return 1;
 }
@@ -117,23 +155,22 @@ int main(int argc, const char* argv[])
         std::getline(std::cin, passphrase);
     }
 
-    RSA_ptr rsa(RSA_new(), ::RSA_free);
-    EVP_KEY_ptr pkey(EVP_PKEY_new(), ::EVP_PKEY_free);
+    RSA *rsa = RSA_new();
+    EVP_PKEY *pkey = EVP_PKEY_new();
+    RSA *rsa2 = RSA_new();
+    EVP_PKEY *pkey2 = EVP_PKEY_new();
 
-    if(!generatersa(rsa.get(), pkey.get()))
+    if(!generatersa(rsa, pkey))
     {
         return 1;
     }
 
-    if(!writersa(pkey.get(), passphrase))
+    if(!writersa(pkey, passphrase))
     {
         return 1;
     }
 
-    RSA_ptr rsa2(RSA_new(), ::RSA_free);
-    EVP_KEY_ptr pkey2(EVP_PKEY_new(), ::EVP_PKEY_free);
-
-    if(!readrsa(rsa2.get(), pkey2.get(), passphrase))
+    if(!readrsa(rsa2, pkey2, passphrase))
     {
         return 1;
     }
@@ -144,12 +181,25 @@ int main(int argc, const char* argv[])
     std::cout << "Please enter a text to be encrypted: ";
     std::getline(std::cin, text);
 
-    std::basic_string<unsigned char> cleantext;
+    if(!rsaencrypt(rsa, text))
+    {
+        return 1;
+    }
 
-    if(!rsaencrypt(rsa.get(), pkey.get()))
+    if(!rsadecrypt(rsa))
     {
         return 1;
     }
     
+    // Cleanup
+    std::cout << "Cleanup of all pointers..." << std::endl;
+    RSA_free(rsa);
+    RSA_free(rsa2);
+    EVP_PKEY_free(pkey);
+    EVP_PKEY_free(pkey);
+
+    // Finally
     std::cout << "At least nothing went wrong." << std::endl;
+
+    return 0;
 }

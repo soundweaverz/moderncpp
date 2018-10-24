@@ -1,11 +1,11 @@
 # -*- Makefile -*-
 
 # filename
-filename = rsatest
+filename = rsatesttemp
 
 # args
 args = -g $(filename).cpp -std=c++17  -lssl -lcrypto -Wall -DDEBUG
-winfile = -IC:/msys64/usr/local/include -LC:/msys64/usr/local/lib -o $(filename).exe
+winfile = -IC:/OpenSSL-x64/include -LC:/OpenSSL-x64/lib -o $(filename).exe
 linfile = -I/usr/local/include -L/usr/local/lib -o $(filename).x
 
 # setups for different systems
