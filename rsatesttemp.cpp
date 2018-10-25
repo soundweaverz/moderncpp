@@ -100,8 +100,8 @@ RSA* readrsa(std::string passphrase)
 int rsaencrypt(RSA *rsa, std::string cleantext)
 {
     // string allocation
-    // unsigned char from[256 - 11] = {'t','e','s','t'};
-    unsigned char *from = (unsigned char *) cleantext.c_str();
+    //unsigned char from[256 - 11] = {'t','e','s','t'};
+    unsigned char *from = {(unsigned char *) cleantext.c_str()};
     std::cout << from << std::endl;
     if(sizeof(from) > 256 - 11)
     {
@@ -116,7 +116,7 @@ int rsaencrypt(RSA *rsa, std::string cleantext)
     // std::cout << to << std::endl;
 
     // writebio
-    BIO *cipher = BIO_new_file("ciphertext.txt","w");
+    BIO *cipher = BIO_new_file("ciphertext.txt","wb");
     BIO_write(cipher, to, RSA_size(rsa));
 
     // cleanup
@@ -132,10 +132,13 @@ int rsadecrypt(RSA *rsa)
     unsigned char to[256] = "";
 
     // writebio
-    BIO *cipher = BIO_new_file("ciphertext.txt","r");
+    BIO *cipher = BIO_new_file("ciphertext.txt","rb");
     int rc = 0;
-    rc = BIO_read(cipher, ciphertext, 256);
-    std::cout << rc << std::endl;
+    size_t placeholder = 0;
+    size_t *rb;
+    rb = &placeholder;
+    rc = BIO_read_ex(cipher, ciphertext, (size_t) 256, rb);
+    std::cout << rc << ", " << *rb << std::endl;
 
     // output cipher
     // std::cout << ciphertext << std::flush << std::endl;
