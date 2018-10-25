@@ -85,7 +85,7 @@ int rsaencrypt(RSA *rsa, EVP_PKEY *pkey)
     unsigned char to[2048] = "";
 
     // encryption
-    RSA_private_encrypt(cleantext.size(), from, to, rsa, RSA_PKCS1_PADDING);
+    RSA_public_encrypt(cleantext.size(), from, to, rsa, RSA_PKCS1_PADDING);
 
     // cipher output
     std::cout << to << std::endl;

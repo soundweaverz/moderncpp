@@ -7,6 +7,8 @@
 #include <openssl/bio.h>
 #include <openssl/x509.h>
 
+#include <cassert>
+
 int generatersa(RSA *rsa, EVP_PKEY *pkey)
 {
     BIGNUM *bn = BN_new();
@@ -63,47 +65,55 @@ int writersa(EVP_PKEY *pkey, std::string passphrase)
 
     return 1;
 }
-int rsaencrypt(RSA *rsa, std::string cleantext);
-int readrsa(RSA *rsa, EVP_PKEY *pkey, std::string passphrase)
+// int rsaencrypt(RSA *rsa, std::string cleantext);
+RSA* readrsa(std::string passphrase)
 {
+    EVP_PKEY *temppkey = EVP_PKEY_new();
     BIO *pemread = BIO_new_file("rsa-private.pem","r");
-    BIO *pemwrite = BIO_new_file("rsa-private2.pem","w");
- 
-    PEM_read_bio_PrivateKey(pemread, &pkey, 0, const_cast<char*>(passphrase.c_str()));
+    // BIO *pemwrite = BIO_new_file("rsa-private2.pem","w");
+    
+    PEM_read_bio_PrivateKey(pemread, &temppkey, 0, const_cast<char*>(passphrase.c_str()));
 
     // Write private key in PKCS PEM
-    if(!PEM_write_bio_PKCS8PrivateKey(pemwrite, pkey,
+    /* if(!PEM_write_bio_PKCS8PrivateKey(pemwrite, pkey,
         EVP_des_ede3_cbc(), const_cast<char*>(passphrase.c_str()),
         passphrase.size(), NULL, NULL))
     {
         std::cerr << "Could not convert RSA to PKEY." << std::endl;
         return 0;
-    }
+    } */
     std::cout << "Successfully read RSA Private Key." << std::endl;
 
     // get rsa from pkey
-    rsa = EVP_PKEY_get1_RSA(pkey);
-    rsaencrypt(rsa, passphrase);
+    // assert(rsa);
+    // rsaencrypt(rsa, passphrase);
 
     // Cleanup
     BIO_free(pemread);
-    BIO_free(pemwrite);
+    // BIO_free(pemwrite);
 
-    return 1;
+
+    return EVP_PKEY_get1_RSA(temppkey);
+;
 }
 
 int rsaencrypt(RSA *rsa, std::string cleantext)
 {
     // string allocation
+    // unsigned char from[256 - 11] = {'t','e','s','t'};
     unsigned char *from = (unsigned char *) cleantext.c_str();
     std::cout << from << std::endl;
-    unsigned char to[512] = "";
+    if(sizeof(from) > 256 - 11)
+    {
+        return 0;
+    }
+    unsigned char to[256] = "";
 
     // encryption
-    RSA_private_encrypt(cleantext.size(), from, to, rsa, RSA_PKCS1_PADDING);
+    RSA_public_encrypt(cleantext.size(), from, to, rsa, RSA_PKCS1_PADDING);
 
     // cipher output
-    std::cout << to << std::endl;
+    // std::cout << to << std::endl;
 
     // writebio
     BIO *cipher = BIO_new_file("ciphertext.txt","w");
@@ -128,11 +138,10 @@ int rsadecrypt(RSA *rsa)
     std::cout << rc << std::endl;
 
     // output cipher
-    std::cout << ciphertext << std::endl;
+    // std::cout << ciphertext << std::flush << std::endl;
 
     // decrypt cipher
-    RSA_public_decrypt(256, ciphertext, to, rsa, RSA_PKCS1_PADDING);
-
+    RSA_private_decrypt(256, ciphertext, to, rsa, RSA_PKCS1_PADDING);
     std::cout << to << std::endl;
 
     return 1;
@@ -158,7 +167,6 @@ int main(int argc, const char* argv[])
     RSA *rsa = RSA_new();
     EVP_PKEY *pkey = EVP_PKEY_new();
     RSA *rsa2 = RSA_new();
-    EVP_PKEY *pkey2 = EVP_PKEY_new();
 
     if(!generatersa(rsa, pkey))
     {
@@ -170,18 +178,15 @@ int main(int argc, const char* argv[])
         return 1;
     }
 
-    if(!readrsa(rsa2, pkey2, passphrase))
-    {
-        return 1;
-    }
-
+    rsa2 = readrsa(passphrase);
+ 
     std::cout << "All RSA generation tasks successful." << std::endl;
 
     std::string text {};
     std::cout << "Please enter a text to be encrypted: ";
     std::getline(std::cin, text);
 
-    if(!rsaencrypt(rsa, text))
+    if(!rsaencrypt(rsa2, text))
     {
         return 1;
     }
@@ -195,7 +200,6 @@ int main(int argc, const char* argv[])
     std::cout << "Cleanup of all pointers..." << std::endl;
     RSA_free(rsa);
     RSA_free(rsa2);
-    EVP_PKEY_free(pkey);
     EVP_PKEY_free(pkey);
 
     // Finally
