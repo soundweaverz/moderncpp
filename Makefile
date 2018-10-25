@@ -25,6 +25,6 @@ winetest:
 
 # aufräumen
 wclean:
-	del *.exe *.x *.o
+	del *.exe *.x *.o *.pem *.txt
 lclean:
-	rm -f *.exe *.x *.o
+	rm -f *.exe *.x *.o *.pem *.txt
