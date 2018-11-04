@@ -1,12 +1,19 @@
 # -*- Makefile -*-
 
 # filename
-filename = rsatesttemp
+filename = modern1210
 
-# args
-args = -g $(filename).cpp -std=c++17  -lssl -lcrypto -Wall -DDEBUG
-winfile = -IC:/OpenSSL-x64/include -LC:/OpenSSL-x64/lib -o $(filename).exe
-linfile = -I/usr/local/include -L/usr/local/lib -o $(filename).x
+### args ### 
+
+# for RSA shit
+# args = -g $(filename).cpp -std=c++17 -Wall -DDEBUG -lssl -lcrypto
+# winfile = -IC:/OpenSSL-x64/include -LC:/OpenSSL-x64/lib -o $(filename).exe
+# linfile = -I/usr/local/include -L/usr/local/lib -o $(filename).x
+
+# for normal stuff
+args = -g $(filename).cpp -std=c++17 -Wall
+winfile = -o $(filename).exe
+linfile = -o $(filename).x
 
 # setups for different systems
 all: windows wlinux
