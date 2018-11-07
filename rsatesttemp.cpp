@@ -134,10 +134,10 @@ int rsadecrypt(RSA *rsa)
     // writebio
     BIO *cipher = BIO_new_file("ciphertext.txt","rb");
     int rc = 0;
-    size_t placeholder = 0;
-    size_t *rb;
+    std::size_t placeholder = 0;
+    std::size_t *rb;
     rb = &placeholder;
-    rc = BIO_read_ex(cipher, ciphertext, (size_t) 256, rb);
+    rc = BIO_read_ex(cipher, ciphertext, (std::size_t) 256, rb);
     std::cout << rc << ", " << *rb << std::endl;
 
     // output cipher
