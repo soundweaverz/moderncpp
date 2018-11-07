@@ -1,7 +1,7 @@
 # -*- Makefile -*-
 
 # filename
-filename = modern1210
+filename = modern1215
 
 ### args ### 
 
@@ -11,7 +11,7 @@ filename = modern1210
 # linfile = -I/usr/local/include -L/usr/local/lib -o $(filename).x
 
 # for normal stuff
-args = -g $(filename).cpp -std=c++17 -Wall
+args = -g $(filename).cpp -std=c++17 -Wall -pedantic
 winfile = -o $(filename).exe
 linfile = -o $(filename).x
 
