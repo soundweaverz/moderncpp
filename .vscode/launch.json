@@ -17,14 +17,14 @@
             "program": "",
             "windows": {
                 "miDebuggerPath": "C:\\Program Files\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\gdb.exe",
-                "program": "${workspaceFolder}/modern1002.exe",
+                "program": "${workspaceFolder}/modern1215.exe",
                 "args": [
                     "README.md"
                 ]
             },
             "linux": {
                 "miDebuggerPath": "/usr/bin/gdb",
-                "program": "${workspaceFolder}/modern1002.x",
+                "program": "${workspaceFolder}/modern1215.x",
                 "args": [
                     "README.md"
                 ]

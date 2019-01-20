@@ -1,7 +1,7 @@
 # -*- Makefile -*-
 
 # filename
-filename = modern1215
+filename = modern1222
 
 ### args ### 
 
@@ -26,9 +26,9 @@ lall: linux lwindows
 linux:
 	g++ $(args) $(linfile)
 lwindows:
-	x86_64-w64-mingw32-g++-posix $(args) $(winfile)
+	x86_64-w64-mingw32-g++ $(args) $(winfile)
 winetest:
-	i686-w64-mingw32-g++-posix $(args) $(winfile) --static
+	x86_64-w64-mingw32-g++ $(args) $(winfile) --static
 
 # aufräumen
 wclean:

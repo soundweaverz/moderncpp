@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/jnuehnen/Dokumente/Eigene Projekte/Modern C++/src/modern1230.cpp
+vector
+-
+set
+-
+iostream
+-
+
